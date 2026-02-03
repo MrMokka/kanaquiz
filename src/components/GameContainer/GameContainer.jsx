@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { kanaDictionary } from '../../data/kanaDictionary';
 import ChooseCharacters from '../ChooseCharacters/ChooseCharacters';
 import Game from '../Game/Game';
 
@@ -10,16 +9,16 @@ class GameContainer extends Component {
     decidedGroups: JSON.parse(localStorage.getItem('decidedGroups') || null) || []
   }
 
-  componentWillReceiveProps() {
-    if(!this.state.isLocked)
+  componentDidUpdate(prevProps) {
+    // Only reset stage when moving back to chooseCharacters and not locked
+    if(prevProps.gameState !== 'chooseCharacters' && this.props.gameState === 'chooseCharacters' && !this.state.isLocked) {
       this.setState({stage: 1});
+    }
   }
 
   startGame = decidedGroups => {
     if(parseInt(this.state.stage)<1 || isNaN(parseInt(this.state.stage)))
       this.setState({stage: 1});
-    else if(parseInt(this.state.stage)>4)
-      this.setState({stage: 4});
 
     this.setState({decidedGroups: decidedGroups});
     localStorage.setItem('decidedGroups', JSON.stringify(decidedGroups));
@@ -31,7 +30,7 @@ class GameContainer extends Component {
   }
 
   lockStage = (stage, forceLock) => {
-    // if(stage<1 || stage>4) stage=1; // don't use this to allow backspace
+    // allow locking any stage number; preserve 5 as drawing stage
     if(forceLock)
       this.setState({stage: stage, isLocked: true});
     else

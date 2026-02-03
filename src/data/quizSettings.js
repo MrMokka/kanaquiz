@@ -3,6 +3,8 @@ export const quizSettings = {
         1: 20,
         2: 20,
         3: 20,
-        4: 20
+        4: 20,
+        // New writing stage
+        5: 15
     }
 };

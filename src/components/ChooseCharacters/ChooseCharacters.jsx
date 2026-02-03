@@ -266,12 +266,12 @@ class ChooseCharacters extends Component {
             <span className="pull-right lock">Lock to stage &nbsp;
               {
                 this.props.isLocked &&
-                  <input className="stage-choice" type="number" min="1" max="4" maxLength="1" size="1"
-                    onChange={(e)=>this.props.lockStage(e.target.value, true)}
+                  <input className="stage-choice" type="number" min="1" max="6" maxLength="1" size="1"
+                    onChange={(e)=>this.props.lockStage(parseInt(e.target.value,10), true)}
                     value={this.props.stage}
                   />
               }
-              <Switch onClick={()=>this.props.lockStage(1)} on={this.props.isLocked} /></span>
+              <Switch onClick={()=>this.props.lockStage(this.props.stage)} on={this.props.isLocked} /></span>
           </div>
           <div className="col-sm-offset-3 col-sm-6 col-xs-12 text-center">
             {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { kanaDictionary } from '../../data/kanaDictionary';
 import ShowStage from './ShowStage';
 import Question from './Question';
+import DrawQuestion from './DrawQuestion';
 
 class Game extends Component {
   state = { showScreen: '' }
@@ -32,8 +32,12 @@ class Game extends Component {
             <ShowStage lockStage={this.lockStage} handleShowQuestion={this.showQuestion} handleEndGame={this.props.handleEndGame} stage={this.props.stage} />
         }
         {
-          this.state.showScreen==='question' &&
-            <Question isLocked={this.props.isLocked} handleStageUp={this.stageUp} stage={this.props.stage} decidedGroups={this.props.decidedGroups} />
+          this.state.showScreen==='question' && (
+            this.props.stage === 5 ?
+              <DrawQuestion isLocked={this.props.isLocked} handleStageUp={this.stageUp} stage={this.props.stage} decidedGroups={this.props.decidedGroups} />
+            :
+              <Question isLocked={this.props.isLocked} handleStageUp={this.stageUp} stage={this.props.stage} decidedGroups={this.props.decidedGroups} />
+          )
         }
       </div>
     );
