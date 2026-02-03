@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
 
 class CharacterGroup extends Component {
-  state = { shownChars: '' }
-
-  changeShownChars(newString) {
-    this.setState({shownChars: newString})
-  }
-
   getShowableCharacters(whichKana) {
     let strRomajiCharacters = '';
     let strKanaCharacters = '';
@@ -16,15 +10,13 @@ class CharacterGroup extends Component {
     });
     strRomajiCharacters = strRomajiCharacters.slice(0, -2);
     strKanaCharacters = strKanaCharacters.slice(0, -2);
-    if(whichKana=='romaji') return strRomajiCharacters;
+    if(whichKana === 'romaji') return strRomajiCharacters;
     else return strKanaCharacters;
   }
 
-  componentWillMount() {
-    this.changeShownChars(this.getShowableCharacters('romaji'));
-  }
-
   render() {
+    const kanaStr = this.getShowableCharacters('kana');
+    const romajiStr = this.getShowableCharacters('romaji');
     return (
       <div
       className={
@@ -34,16 +26,14 @@ class CharacterGroup extends Component {
       }
       onClick={() => {
         this.props.handleToggleSelect(this.props.groupName);
-        this.changeShownChars(this.getShowableCharacters('romaji'));
       }}
-      onMouseDown={()=>this.changeShownChars(this.getShowableCharacters('kana'))}
-      onMouseOut={()=>this.changeShownChars(this.getShowableCharacters('romaji'))}
-      onTouchStart={()=>this.changeShownChars(this.getShowableCharacters('kana'))}
-      onTouchEnd={()=>this.changeShownChars(this.getShowableCharacters('romaji'))}
     >
       <span className={this.props.selected ?
           'glyphicon glyphicon-small glyphicon-check' :
-          'glyphicon glyphicon-small glyphicon-unchecked'}></span> {this.state.shownChars}
+          'glyphicon glyphicon-small glyphicon-unchecked'}></span>
+      <span className="kana"> {kanaStr}</span>
+      <span className="separator"> — </span>
+      <span className="romaji">{romajiStr}</span>
       </div>
     );
   }

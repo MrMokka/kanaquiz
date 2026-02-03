@@ -61,6 +61,32 @@
   .success-percent {
     color: #ccc;
   }
+  .selection-areas--custom {
+    column-gap: 10px;
+    column-count: 2;
+
+    @media (min-width: 600px) {
+      column-count: 4;
+    }
+    @media (min-width: 992px) {
+      column-count: 7;
+    }
+
+    .choose-row {
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      display: block;
+      border-bottom: 1px #eee solid;
+      padding: 5px;
+    }
+  }
+  .choose-row .separator {
+    color: #bbb;
+    margin: 0 4px;
+  }
+  .choose-row .romaji {
+    color: #666;
+  }
 }
 .error-message {
   color: #d9534f;

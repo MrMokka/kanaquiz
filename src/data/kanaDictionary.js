@@ -1,4 +1,5 @@
 export const kanaDictionary = {
+  'custom': {},
   'hiragana': {
     'h_group1': { characters: { 'あ': ['a'], 'い': ['i'], 'う': ['u'], 'え': ['e'], 'お': ['o'] } },
     'h_group2': { characters: { 'か': ['ka'], 'き': ['ki'], 'く': ['ku'], 'け': ['ke'], 'こ': ['ko'] } },
@@ -63,3 +64,35 @@ export const kanaDictionary = {
     'k_group33_a': { characters: { 'ティ': ['ti'], 'ディ': ['di'], 'デュ': ['du'], 'トゥ': ['tu'] } }
   }
 };
+
+(function populateCustomPerCharacter(dict) {
+  try {
+    const customPerChar = {};
+    const addAll = (sectionKey, prefix) => {
+      const seenBase = new Set();
+      const groups = dict[sectionKey] || {};
+      Object.keys(groups).forEach(groupName => {
+        if (groupName.endsWith('_s')) return;
+        const chars = (groups[groupName] && groups[groupName].characters) || {};
+        Object.keys(chars).forEach(kana => {
+          const romaji = chars[kana];
+          if (!seenBase.has(kana)) {
+            seenBase.add(kana);
+            const addAlt = kana.length === 2 ? '_a' : '';
+            const baseKey = `${prefix}${addAlt}${kana}`;
+            if (!customPerChar[baseKey]) {
+              customPerChar[baseKey] = { characters: { [kana]: romaji } };
+            }
+          }
+        });
+      });
+    };
+
+    addAll('hiragana', 'c_h_');
+    addAll('katakana', 'c_k_');
+
+    dict.custom = Object.assign({}, dict.custom || {}, customPerChar);
+  } catch (e) {
+    // Fail-safe: do nothing if population fails
+  }
+})(kanaDictionary);

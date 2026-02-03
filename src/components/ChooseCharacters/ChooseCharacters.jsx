@@ -52,7 +52,7 @@ class ChooseCharacters extends Component {
   }
 
   isSelected(groupName) {
-    return this.getIndex(groupName) > -1 ? true : false;
+    return this.getIndex(groupName) > -1;
   }
 
   removeSelect(groupName) {
@@ -74,14 +74,16 @@ class ChooseCharacters extends Component {
       this.addSelect(groupName);
   }
 
-  selectAll(whichKana, altOnly=false, similarOnly=false) {
+  selectAll(whichKana, altOnly=false, similarOnly=false, customOnly='') {
     const thisKana = kanaDictionary[whichKana];
     let newSelectedGroups = this.state.selectedGroups.slice();
     Object.keys(thisKana).forEach(groupName => {
       if(!this.isSelected(groupName) && (
         (altOnly && groupName.endsWith('_a')) ||
         (similarOnly && groupName.endsWith('_s')) ||
-        (!altOnly && !similarOnly)
+        (customOnly === 'hiragana' && groupName.startsWith('c_h_') && !groupName.includes('_a')) ||
+        (customOnly === 'katakana' && groupName.startsWith('c_k_') && !groupName.includes('_a')) ||
+        (!altOnly && !similarOnly && customOnly === '')
       ))
         newSelectedGroups.push(groupName);
     });
@@ -107,21 +109,21 @@ class ChooseCharacters extends Component {
   }
 
   toggleAlternative(whichKana, postfix) {
-    let show = postfix == '_a' ? this.state.showAlternatives : this.state.showSimilars;
+    let show = postfix === '_a' ? this.state.showAlternatives : this.state.showSimilars;
     const idx = show.indexOf(whichKana);
     if(idx >= 0)
       show.splice(idx, 1);
     else
       show.push(whichKana)
-    if(postfix == '_a')
+    if(postfix === '_a')
       this.setState({showAlternatives: show});
-    if(postfix == '_s')
+    if(postfix === '_s')
       this.setState({showSimilars: show});
   }
 
   getSelectedAlternatives(whichKana, postfix) {
     return this.state.selectedGroups.filter(groupName => {
-      return groupName.startsWith(whichKana == 'hiragana' ? 'h_' : 'k_') &&
+      return groupName.startsWith(whichKana === 'hiragana' ? 'h_' : 'k_') &&
         groupName.endsWith(postfix);
     }).length;
   }
@@ -151,10 +153,10 @@ class ChooseCharacters extends Component {
       <span
         className={checkBtn}
         onClick={ e => {
-          if(status == 'check')
-            this.selectNone(whichKana, postfix == '_a', postfix == '_s');
-          else if(status == 'check half' || status == 'unchecked')
-            this.selectAll(whichKana, postfix == '_a', postfix == '_s');
+          if(status === 'check')
+            this.selectNone(whichKana, postfix === '_a', postfix === '_s');
+          else if(status === 'check half' || status === 'unchecked')
+            this.selectAll(whichKana, postfix === '_a', postfix === '_s');
           e.stopPropagation();
         }}
       ></span>
@@ -163,23 +165,23 @@ class ChooseCharacters extends Component {
           : <span className="toggle-caret">&#9660;</span>
       }
       {
-        postfix == '_a' ? 'Alternative characters (ga · ba · kya..)' :
+        postfix === '_a' ? 'Alternative characters (ga · ba · kya..)' :
           'Look-alike characters'
       }
     </div>
   }
 
-  showGroupRows(whichKana, showAlternatives, showSimilars = false) {
+  showGroupRows(whichKana, showAlternatives, showSimilars = false, showAll=false) {
     const thisKana = kanaDictionary[whichKana];
     let rows = [];
     Object.keys(thisKana).forEach((groupName, idx) => {
-      if(groupName == "h_group11_a" || groupName == "k_group13_a")
+      if(groupName === "h_group11_a" || groupName === "k_group13_a")
         rows.push(this.alternativeToggleRow(whichKana, "_a", showAlternatives));
-      if(groupName == "k_group11_s")
+      if(groupName === "k_group11_s")
         rows.push(this.alternativeToggleRow(whichKana, "_s", showSimilars));
 
-      if((!groupName.endsWith("a") || showAlternatives) &&
-        (!groupName.endsWith("s") || showSimilars)) {
+      if(showAll || ((!groupName.endsWith("a") || showAlternatives) &&
+        (!groupName.endsWith("s") || showSimilars))) {
         rows.push(<CharacterGroup
           key={idx}
           groupName={groupName}
@@ -222,10 +224,10 @@ class ChooseCharacters extends Component {
                 {this.showGroupRows('hiragana', this.state.showAlternatives.indexOf('hiragana') >= 0)}
               </div>
               <div className="panel-footer text-center">
-                <a href="javascript:;" onClick={()=>this.selectAll('hiragana')}>All</a> &nbsp;&middot;&nbsp; <a href="javascript:;"
-                  onClick={()=>this.selectNone('hiragana')}>None</a>
-                &nbsp;&middot;&nbsp; <a href="javascript:;" onClick={()=>this.selectAll('hiragana', true)}>All alternative</a>
-                &nbsp;&middot;&nbsp; <a href="javascript:;" onClick={()=>this.selectNone('hiragana', true)}>No alternative</a>
+                <a href="javascript:" onClick={()=>this.selectAll('hiragana')}>All</a> &nbsp;&middot;&nbsp; <a href="javascript:"
+                                                                                                               onClick={()=>this.selectNone('hiragana')}>None</a>
+                &nbsp;&middot;&nbsp; <a href="javascript:" onClick={()=>this.selectAll('hiragana', true)}>All alternative</a>
+                &nbsp;&middot;&nbsp; <a href="javascript:" onClick={()=>this.selectNone('hiragana', true)}>No alternative</a>
               </div>
             </div>
           </div>
@@ -236,11 +238,27 @@ class ChooseCharacters extends Component {
                 {this.showGroupRows('katakana', this.state.showAlternatives.indexOf('katakana') >= 0, this.state.showSimilars.indexOf('katakana') >= 0)}
               </div>
               <div className="panel-footer text-center">
-                <a href="javascript:;" onClick={()=>this.selectAll('katakana')}>All</a> &nbsp;&middot;&nbsp; <a href="javascript:;"
-                  onClick={()=>this.selectNone('katakana')}>None
+                <a href="javascript:" onClick={()=>this.selectAll('katakana')}>All</a> &nbsp;&middot;&nbsp; <a href="javascript:"
+                                                                                                               onClick={()=>this.selectNone('katakana')}>None
                 </a>
-                &nbsp;&middot;&nbsp; <a href="javascript:;" onClick={()=>this.selectAll('katakana', true)}>All alternative</a>
-                &nbsp;&middot;&nbsp; <a href="javascript:;" onClick={()=>this.selectNone('katakana', true)}>No alternative</a>
+                &nbsp;&middot;&nbsp; <a href="javascript:" onClick={()=>this.selectAll('katakana', true)}>All alternative</a>
+                &nbsp;&middot;&nbsp; <a href="javascript:" onClick={()=>this.selectNone('katakana', true)}>No alternative</a>
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-12">
+              <div className="panel panel-default">
+                <div className="panel-heading">Custom</div>
+                <div className="panel-body selection-areas selection-areas--custom">
+                  {this.showGroupRows('custom', false, false, true)}
+                </div>
+                <div className="panel-footer text-center">
+                  <a href="javascript:" onClick={()=>this.selectAll('custom')}>All</a> &nbsp;&middot;&nbsp; <a href="javascript:"
+                                                                                                               onClick={()=>this.selectNone('custom')}>None</a>
+                  &nbsp;&middot;&nbsp; <a href="javascript:" onClick={()=>this.selectAll('custom', false, false, 'hiragana')}>All hiragana</a>
+                  &nbsp;&middot;&nbsp; <a href="javascript:" onClick={()=>this.selectAll('custom', false, false, 'katakana')}>All katakana</a>
+                </div>
               </div>
             </div>
           </div>
@@ -257,7 +275,7 @@ class ChooseCharacters extends Component {
           </div>
           <div className="col-sm-offset-3 col-sm-6 col-xs-12 text-center">
             {
-              this.state.errMsg != '' &&
+              this.state.errMsg !== '' &&
                 <div className="error-message">{this.state.errMsg}</div>
             }
             <button ref={c => this.startRef = c} className="btn btn-danger startgame-button" onClick={() => this.startGame()}>Start the Quiz!</button>
